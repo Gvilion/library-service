@@ -21,13 +21,13 @@ class PaymentViewSet(
         queryset = self.queryset
 
         if self.action == "list":
-            queryset = Payment.objects.select_related("user")
+            queryset = Payment.objects.select_related("user", "borrowing")
 
             if not self.request.user.is_staff:
                 queryset = queryset.filter(user=self.request.user)
 
         if self.action == "retrieve":
-            queryset = Payment.objects.select_related("user")
+            queryset = Payment.objects.select_related("user", "borrowing")
 
         return queryset
 
