@@ -15,7 +15,7 @@ class Payment(models.Model):
     )
     status = models.CharField(max_length=63, choices=STATUSES)
     type = models.CharField(max_length=63, choices=TYPES)
-    borrowing_id = models.ForeignKey(
+    borrowing = models.ForeignKey(
         to="Borrowing",
         related_name="payments",
         on_delete=models.CASCADE,
