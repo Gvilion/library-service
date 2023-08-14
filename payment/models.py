@@ -24,7 +24,11 @@ class Payment(models.Model):
     )
     session_url = models.URLField()
     session_id = models.CharField(max_length=63, unique=True)
-    money_to_pay = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    money_to_pay = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     user = models.ForeignKey(
         to=User,
         related_name="payments",
