@@ -20,7 +20,12 @@ class Payment(models.Model):
     )
     session_url = models.URLField()
     session_id = models.CharField(max_length=63, unique=True)
-    money_to_pay = models.DecimalField(models.DecimalField(max_digits=10, decimal_places=2))
+    money_to_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    user = models.ForeignKey(
+        to=User,
+        related_name="payments",
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
         return f"Payment {self.id} ({self.type}) {self.user.email}"
