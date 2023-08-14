@@ -1,7 +1,7 @@
 from django.db import models
 
 from user.models import User
-from borrowing import Borrowing
+from borrowing.models import Borrowing
 
 
 class Payment(models.Model):
