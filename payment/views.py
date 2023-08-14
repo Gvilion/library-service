@@ -4,7 +4,8 @@ from payment.models import Payment
 from payment.permissions import IsAdminOrIfAuthenticatedReadOnly
 from payment.serializers import (
     PaymentSerializer,
-    PaymentListDetailSerializer
+    PaymentListSerializer,
+    PaymentDetailSerializer,
 )
 
 
@@ -35,9 +36,9 @@ class PaymentViewSet(
         serializer_class = self.serializer_class
 
         if self.action == "list":
-            serializer_class = PaymentListDetailSerializer
+            serializer_class = PaymentListSerializer
         elif self.action == "retrieve":
-            serializer_class = PaymentListDetailSerializer
+            serializer_class = PaymentDetailSerializer
 
         return serializer_class
 
