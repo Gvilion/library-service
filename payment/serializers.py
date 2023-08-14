@@ -33,4 +33,3 @@ class PaymentListDetailSerializer(PaymentSerializer):
             "session_id",
             "money_to_pay",
         )
-
