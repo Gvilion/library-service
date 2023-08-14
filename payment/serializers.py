@@ -8,6 +8,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = (
             "id",
+            "user",
             "status",
             "type",
             "borrowing",
