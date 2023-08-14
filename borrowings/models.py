@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.db import models
 
+from books.models import Book
+
 
 class Borrowing(models.Model):
     borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
-    book = models.IntegerField()
-    # add this to the book field when Book and Borrowing are created: models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
     # uncomment this when custom User model is implemented:
     # user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
