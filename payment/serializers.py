@@ -20,6 +20,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class PaymentListDetailSerializer(PaymentSerializer):
     user = serializers.CharField(source="user.email")
+    borrowing = serializers.CharField(source="borrowing.book.title")
 
     class Meta:
         model = Payment
