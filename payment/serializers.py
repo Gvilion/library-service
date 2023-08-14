@@ -16,3 +16,20 @@ class PaymentSerializer(serializers.ModelSerializer):
             "session_id",
             "money_to_pay",
         )
+
+
+class PaymentListSerializer(PaymentSerializer):
+    user = serializers.CharField(source="user.email")
+
+    class Meta:
+        model = Payment
+        fields = (
+            "id",
+            "user",
+            "status",
+            "type",
+            "borrowing",
+            "session_url",
+            "session_id",
+            "money_to_pay",
+        )
