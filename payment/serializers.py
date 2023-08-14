@@ -18,7 +18,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         )
 
 
-class PaymentListSerializer(PaymentSerializer):
+class PaymentListDetailSerializer(PaymentSerializer):
     user = serializers.CharField(source="user.email")
 
     class Meta:
@@ -33,3 +33,4 @@ class PaymentListSerializer(PaymentSerializer):
             "session_id",
             "money_to_pay",
         )
+
