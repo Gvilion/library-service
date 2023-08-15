@@ -2,6 +2,8 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
+from payment.serializers import PaymentSerializer
+from payment.stripe_helper import create_stripe_session
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -24,6 +26,12 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "is_active",
         )
         read_only_fields = ("id", "is_active", "borrow_date")
+
+    def create(self, validated_data):
+        borrowing = Borrowing.objects.create(**validated_data)
+        create_stripe_session(borrowing)
+
+        return borrowing
 
 
 class BorrowingListSerializer(serializers.ModelSerializer):
