@@ -10,8 +10,6 @@ from payment.stripe_helper import create_stripe_session
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(many=True, read_only=True)
-
     def validate(self, attrs):
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_date(
@@ -29,13 +27,11 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "is_active",
-            "payments",
         )
         read_only_fields = ("id", "is_active", "borrow_date")
 
     def create(self, validated_data):
         borrowing = Borrowing.objects.create(**validated_data)
-        create_stripe_session(borrowing)
 
         return borrowing
 
@@ -71,7 +67,6 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Borrowing
@@ -80,7 +75,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             "book",
             "borrow_date",
             "expected_return_date",
-            "payments",
         )
 
     def validate(self, attrs):
@@ -105,8 +99,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         )
         book.inventory -= 1
         book.save()
-        request = self.context.get("request")
-        create_stripe_session(borrowing, request)
 
         return borrowing
 
