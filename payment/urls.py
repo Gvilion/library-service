@@ -15,7 +15,7 @@ urlpatterns = [
     path(
         "<int:pk>/success/",
         SuccessPaymentView.as_view(),
-        name='payment-success'
+        name="payment-success"
     ),
     path(
         "cancel/",
