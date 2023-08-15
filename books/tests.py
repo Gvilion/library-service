@@ -90,3 +90,13 @@ class SuperUserAuthTestCase(APITestCase):
         self.assertEqual(updated_book.cover, "SOFT")
         self.assertEqual(updated_book.inventory, 5)
         self.assertEqual(updated_book.daily_fee, Decimal("9.99"))
+
+    def test_delete_book_by_superuser(self):
+        self.test_create_book_by_superuser()
+        book_id = Book.objects.filter(title="BOT: Atakama Crisis").first().id
+
+        response = self.client.delete(BOOKS_URL + str(book_id) + "/",)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(Book.DoesNotExist):
+            Book.objects.get(id=book_id)
