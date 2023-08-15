@@ -1,4 +1,6 @@
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from payment.models import Payment
 from payment.permissions import IsAdminOrIfAuthenticatedReadOnly
@@ -44,3 +46,35 @@ class PaymentViewSet(
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class SuccessPaymentView(APIView):
+    def get(self, request, *args, **kwargs):
+        print(request)
+        user_id = kwargs.get('pk')
+        print(user_id)
+
+        payment = Payment.objects.filter(user_id=user_id).first()
+        print(payment)
+
+        if payment:
+            payment.status = "PAID"
+            payment.save()
+
+            return Response(
+                {"message": "Payment successful"},
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"message": "Payment not found or already processed"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class CancelPaymentView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(
+            {"message": "Payment can be paid a bit later"},
+            status=status.HTTP_200_OK
+        )
