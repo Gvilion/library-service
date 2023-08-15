@@ -65,13 +65,6 @@ def create_payment(borrowing, session):
 
 
 def create_stripe_session(borrowing, request):
-    days_remaining = (borrowing.expected_return_date
-                      - timezone.now().date()
-                      ).days
-    total_price_in_cents = int(days_remaining
-                               * borrowing.book.daily_fee
-                               * 100
-                               )
 
     success_url = request.build_absolute_uri(
         reverse(
@@ -82,6 +75,8 @@ def create_stripe_session(borrowing, request):
     cancel_url = request.build_absolute_uri(
         reverse("payment:payment-cancel")
     )
+
+    total_price_in_cents = count_total_price(borrowing)
 
     session = stripe.checkout.Session.create(
         payment_method_types=["card"],
@@ -101,14 +96,9 @@ def create_stripe_session(borrowing, request):
         cancel_url=cancel_url
     )
 
-    payment = Payment.objects.create(
-        status="PENDING",
-        type="PAYMENT",
-        borrowing=borrowing,
-        session_id=session.id,
-        session_url=session.url,
-        user=borrowing.user
-    )
+    payment = create_payment(borrowing, session)
+
     borrowing.payments.add(payment)
+    borrowing.save()
 
     return session.url
