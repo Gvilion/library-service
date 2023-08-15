@@ -13,6 +13,8 @@ BOOKS_URL = "/api/books/"
 
 class BookModelTestCase(TestCase):
 
+    """A test to check the correctness of the model Book"""
+
     def setUp(self):
         Book.objects.create(
             title="Test Book",
@@ -45,6 +47,10 @@ class BookModelTestCase(TestCase):
 
 
 class SuperUserAuthTestCase(APITestCase):
+
+    """A test case to check the correctness of the interaction
+        of Book application with superuser (admin)"""
+
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_superuser(
             email="admin@libr.com", password="TestPass1290"
@@ -129,6 +135,10 @@ class SuperUserAuthTestCase(APITestCase):
 
 
 class NotAdminUserAuthTestCase(APITestCase):
+
+    """A test case to check the correctness of the interaction
+        of Book application with general (not admin) authenticated user"""
+
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(
             email="user@mail.com", password="TestPass333"
@@ -195,6 +205,10 @@ class NotAdminUserAuthTestCase(APITestCase):
 
 
 class NotAuthenticatedUserTestCase(APITestCase):
+
+    """A test case to check the correctness of the interaction
+    of Book application with an unauthenticated user"""
+
     def setUp(self) -> None:
         self.book1 = Book.objects.create(
             title="Inferno",
