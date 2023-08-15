@@ -1,7 +1,14 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from decimal import Decimal
 
+from rest_framework import status
+from rest_framework.test import APITestCase, APIClient
+
 from .models import Book
+
+
+BOOKS_URL = "/api/books/"
 
 
 class BookModelTestCase(TestCase):
@@ -35,3 +42,28 @@ class BookModelTestCase(TestCase):
                 inventory=5,
                 daily_fee=9.99
             )
+
+
+class SuperUserAuthTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="admin@libr.com", password="TestPass1290"
+        )
+
+        self.data = {
+            "title": "BOT: Atakama Crisis",
+            "author": "Max Kidruk",
+            "cover": "HARD",
+            "inventory": 1,
+            "daily_fee": 12.99
+        }
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def create_book_by_superuser(self) -> None:
+        response = self.client.post(
+            BOOKS_URL,
+            self.data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
