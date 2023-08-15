@@ -4,7 +4,8 @@ from payment.models import Payment
 from payment.permissions import IsAdminOrIfAuthenticatedReadOnly
 from payment.serializers import (
     PaymentSerializer,
-    PaymentListDetailSerializer
+    PaymentListSerializer,
+    PaymentDetailSerializer,
 )
 
 
@@ -21,13 +22,13 @@ class PaymentViewSet(
         queryset = self.queryset
 
         if self.action == "list":
-            queryset = Payment.objects.select_related("user")
+            queryset = Payment.objects.select_related("user", "borrowing")
 
             if not self.request.user.is_staff:
                 queryset = queryset.filter(user=self.request.user)
 
         if self.action == "retrieve":
-            queryset = Payment.objects.select_related("user")
+            queryset = Payment.objects.select_related("user", "borrowing")
 
         return queryset
 
@@ -35,9 +36,9 @@ class PaymentViewSet(
         serializer_class = self.serializer_class
 
         if self.action == "list":
-            serializer_class = PaymentListDetailSerializer
+            serializer_class = PaymentListSerializer
         elif self.action == "retrieve":
-            serializer_class = PaymentListDetailSerializer
+            serializer_class = PaymentDetailSerializer
 
         return serializer_class
 
