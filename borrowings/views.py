@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -28,7 +26,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         is_active = self.request.query_params.get("is_active")
         user_id = self.request.query_params.get("user_id")
-        queryset = Borrowing.objects.all()
+        queryset = Borrowing.objects.select_related("book")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
