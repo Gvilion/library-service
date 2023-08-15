@@ -126,3 +126,69 @@ class SuperUserAuthTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(Book.DoesNotExist):
             Book.objects.get(id=self.book2.id)
+
+
+class NotAdminUserAuthTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(
+            email="user@mail.com", password="TestPass333"
+        )
+
+        self.book1 = Book.objects.create(
+            title="Inferno",
+            author="Dan Brown",
+            cover="SOFT",
+            inventory=3,
+            daily_fee=15.99
+        )
+
+        self.book2 = Book.objects.create(
+            title="Angels and Demons",
+            author="Dan Brown",
+            cover="HARD",
+            inventory=2,
+            daily_fee=14.99
+        )
+
+        self.data = {
+            "title": "BOT: Atakama Crisis",
+            "author": "Max Kidruk",
+            "cover": "HARD",
+            "inventory": 1,
+            "daily_fee": 12.99
+        }
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_list_books_by_not_admin_user(self) -> None:
+        response = self.client.get(BOOKS_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_retrieve_books_by_not_admin_user(self) -> None:
+        response_book1 = self.client.get(BOOKS_URL + str(self.book1.id) + "/")
+        self.assertEqual(response_book1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_book1.data["title"], self.book1.title)
+
+        response_book2 = self.client.get(BOOKS_URL + str(self.book2.id) + "/")
+        self.assertEqual(response_book2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_book2.data["title"], self.book2.title)
+
+    def test_forbidden_create_book_by_not_admin_user(self) -> None:
+        response = self.client.post(BOOKS_URL, self.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_book_by_not_admin_user(self) -> None:
+        updated_data = {"title": "Updated Title"}
+        response = self.client.patch(
+            BOOKS_URL + str(self.book1.id) + "/",
+            updated_data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_book_by_not_admin_user(self) -> None:
+        response = self.client.delete(BOOKS_URL + str(self.book2.id) + "/",)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Book.objects.filter(id=self.book2.id).exists())
