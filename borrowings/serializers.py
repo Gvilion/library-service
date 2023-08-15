@@ -7,6 +7,8 @@ from payment.stripe_helper import create_stripe_session
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True)
+
     def validate(self, attrs):
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_date(
@@ -24,6 +26,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "is_active",
+            "payments",
         )
         read_only_fields = ("id", "is_active", "borrow_date")
 
