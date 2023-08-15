@@ -149,4 +149,9 @@ SPECTACULAR_SETTINGS = {
                    "user-friendly interface.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    }
 }
