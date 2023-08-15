@@ -12,7 +12,9 @@ class Borrowing(models.Model):
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="borrowings")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="borrowings")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="borrowings"
+    )
 
     @property
     def is_active(self):
@@ -26,14 +28,11 @@ class Borrowing(models.Model):
             )
 
     def clean(self):
-        Borrowing.validate_date(self.expected_return_date,
-                                ValidationError)
+        Borrowing.validate_date(self.expected_return_date, ValidationError)
 
-    def save(self,
-             force_insert=False,
-             force_update=False,
-             using=None,
-             update_fields=None):
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         self.full_clean()
         return super(Borrowing, self).save(
             force_insert, force_update, using, update_fields
