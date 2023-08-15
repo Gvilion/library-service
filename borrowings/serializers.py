@@ -68,6 +68,8 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Borrowing
         fields = (
@@ -76,6 +78,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             "borrow_date",
             "expected_return_date",
             "actual_return_date",
+            "payments",
         )
 
     def validate(self, attrs):
@@ -101,4 +104,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         )
         book.inventory -= 1
         book.save()
+
+        create_stripe_session(borrowing)
+
         return borrowing
