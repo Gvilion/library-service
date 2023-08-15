@@ -8,6 +8,7 @@ bot = TeleBot(token=settings.TELEGRAM_BOT_TOKEN)
 
 def send_message_of_borrowing_creation(borrowing: Borrowing) -> None:
     message = (f"📒CREATE NEW BORROWING:📒\n\n"
+               f"id: {borrowing.id}\n"
                f"User: {borrowing.user.email}\n"
                f"Book: {borrowing.book.title}\n"
                f"Borrow date: {borrowing.borrow_date}\n"
@@ -18,6 +19,7 @@ def send_message_of_borrowing_creation(borrowing: Borrowing) -> None:
 
 def send_message_of_borrowing_return(borrowing: Borrowing) -> None:
     message = (f"📗RETURNED THE BORROWING:📗\n\n"
+               f"ID: {borrowing.id}\n"
                f"User: {borrowing.user.email}\n"
                f"Book: {borrowing.book.title}\n"
                f"Borrow date: {borrowing.borrow_date}\n"
