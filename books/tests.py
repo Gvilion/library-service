@@ -60,10 +60,33 @@ class SuperUserAuthTestCase(APITestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def create_book_by_superuser(self) -> None:
+    def test_create_book_by_superuser(self) -> None:
         response = self.client.post(
             BOOKS_URL,
             self.data,
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_update_book_by_superuser(self) -> None:
+        self.test_create_book_by_superuser()
+        book_id = Book.objects.filter(title="BOT: Atakama Crisis").first().id
+        updated_data = {
+            "title": "Updated Title",
+            "author": "New Author",
+            "cover": "SOFT",
+            "inventory": 5,
+            "daily_fee": 9.99
+        }
+        response = self.client.patch(
+            BOOKS_URL + str(book_id) + "/",
+            updated_data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_book = Book.objects.get(id=book_id)
+        self.assertEqual(updated_book.title, "Updated Title")
+        self.assertEqual(updated_book.author, "New Author")
+        self.assertEqual(updated_book.cover, "SOFT")
+        self.assertEqual(updated_book.inventory, 5)
+        self.assertEqual(updated_book.daily_fee, Decimal("9.99"))
