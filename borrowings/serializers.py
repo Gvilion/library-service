@@ -104,9 +104,21 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
+    message = serializers.CharField(max_length=63,
+                                    default="Borrowing returned successfully.",
+                                    read_only=True)
+    payments = PaymentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Borrowing
-        exclude = ("id", "actual_return_date", "expected_return_date", "book", "user", "borrow_date")
+        fields = (
+            "message",
+            "payments",
+        )
+        read_only_fields = (
+            "message",
+            "payments",
+        )
 
     def validate(self, attrs):
         borrowing = self.instance
@@ -121,4 +133,8 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
         instance.book.inventory += 1
         instance.book.save()
         instance.save()
+
+        request = self.context.get("request")
+        create_stripe_session(instance, request)
+
         return instance
