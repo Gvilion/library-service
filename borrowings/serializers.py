@@ -104,7 +104,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         )
         book.inventory -= 1
         book.save()
-
-        create_stripe_session(borrowing)
+        request = self.context.get("request")
+        create_stripe_session(borrowing, request)
 
         return borrowing
