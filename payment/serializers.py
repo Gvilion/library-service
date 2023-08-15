@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from borrowings.serializers import BorrowingListSerializer
 from payment.models import Payment
 
 
@@ -42,9 +41,15 @@ class PaymentListSerializer(PaymentSerializer):
             "money_to_pay",
         )
 
+
 class PaymentDetailSerializer(PaymentSerializer):
     user = serializers.CharField(source="user.email")
-    borrowing = BorrowingListSerializer(read_only=True, many=False)
+    borrowing_book = serializers.CharField(
+        source="borrowing.book.title"
+    )
+    expected_return_date = serializers.CharField(
+        source="borrowing.expected_return_date"
+    )
 
     class Meta:
         model = Payment
@@ -53,7 +58,8 @@ class PaymentDetailSerializer(PaymentSerializer):
             "user",
             "status",
             "type",
-            "borrowing",
+            "borrowing_book",
+            "expected_return_date",
             "session_url",
             "session_id",
             "money_to_pay",
