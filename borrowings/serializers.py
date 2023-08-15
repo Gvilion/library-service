@@ -5,7 +5,6 @@ from books.serializers import BookSerializer
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
-
     def validate(self, attrs):
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_date(
@@ -60,7 +59,13 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
-        fields = ("id", "book", "borrow_date", "expected_return_date", "actual_return_date")
+        fields = (
+            "id",
+            "book",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+        )
 
     def validate(self, attrs):
         book = attrs.get("book")
