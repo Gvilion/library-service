@@ -50,12 +50,9 @@ class PaymentViewSet(
 
 class SuccessPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        print(request)
         user_id = kwargs.get('pk')
-        print(user_id)
 
         payment = Payment.objects.filter(user_id=user_id).first()
-        print(payment)
 
         if payment:
             payment.status = "PAID"
