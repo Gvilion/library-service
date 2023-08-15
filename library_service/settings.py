@@ -33,6 +33,7 @@ INSTALLED_APPS = [
 
     "rest_framework",
     "debug_toolbar",
+    "drf_spectacular",
 
     "books",
     "borrowings",
@@ -130,6 +131,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
 
 }
 
@@ -138,4 +140,13 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Service",
+    "DESCRIPTION": "An online management system for book borrowings aims to "
+                   "optimize the work of library administrators through a "
+                   "user-friendly interface.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
