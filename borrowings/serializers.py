@@ -101,7 +101,6 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         borrowing = self.instance
-        actual_return_date = attrs.get("actual_return_date")
 
         if borrowing.actual_return_date:
             raise serializers.ValidationError("This borrowing has already been returned.")
