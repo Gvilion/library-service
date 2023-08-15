@@ -1,4 +1,6 @@
 from django.test import TestCase
+from decimal import Decimal
+
 from .models import Book
 
 
@@ -18,7 +20,7 @@ class BookModelTestCase(TestCase):
         self.assertEqual(book.author, "Test Author")
         self.assertEqual(book.cover, "HARD")
         self.assertEqual(book.inventory, 10)
-        self.assertEqual(book.daily_fee, 12.99)
+        self.assertEqual(book.daily_fee, Decimal("12.99"))
 
     def test_book_str_method(self):
         book = Book.objects.get(title="Test Book")
