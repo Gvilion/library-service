@@ -82,6 +82,15 @@ class SuperUserAuthTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
+    def test_retrieve_books_by_superuser(self) -> None:
+        response_book1 = self.client.get(BOOKS_URL + str(self.book1.id) + "/")
+        self.assertEqual(response_book1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_book1.data["title"], self.book1.title)
+
+        response_book2 = self.client.get(BOOKS_URL + str(self.book2.id) + "/")
+        self.assertEqual(response_book2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_book2.data["title"], self.book2.title)
+
     def test_create_book_by_superuser(self) -> None:
         response = self.client.post(
             BOOKS_URL,
