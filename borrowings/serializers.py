@@ -1,5 +1,8 @@
+import datetime
+
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
 
@@ -64,7 +67,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             "book",
             "borrow_date",
             "expected_return_date",
-            "actual_return_date",
         )
 
     def validate(self, attrs):
@@ -85,9 +87,30 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         borrowing = Borrowing.objects.create(
             book=book,
             expected_return_date=validated_data["expected_return_date"],
-            actual_return_date=validated_data["actual_return_date"],
             user=self.context["request"].user,
         )
         book.inventory -= 1
         book.save()
         return borrowing
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        exclude = ("id", "actual_return_date", "expected_return_date", "book", "user", "borrow_date")
+
+    def validate(self, attrs):
+        borrowing = self.instance
+        actual_return_date = attrs.get("actual_return_date")
+
+        if borrowing.actual_return_date:
+            raise serializers.ValidationError("This borrowing has already been returned.")
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.actual_return_date = datetime.date.today()
+        instance.book.inventory += 1
+        instance.book.save()
+        instance.save()
+        return instance
