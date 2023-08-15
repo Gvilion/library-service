@@ -50,6 +50,22 @@ class SuperUserAuthTestCase(APITestCase):
             email="admin@libr.com", password="TestPass1290"
         )
 
+        self.book1 = Book.objects.create(
+            title="Inferno",
+            author="Dan Brown",
+            cover="SOFT",
+            inventory=3,
+            daily_fee=15.99
+        )
+
+        self.book2 = Book.objects.create(
+            title="Angels and Demons",
+            author="Dan Brown",
+            cover="HARD",
+            inventory=2,
+            daily_fee=14.99
+        )
+
         self.data = {
             "title": "BOT: Atakama Crisis",
             "author": "Max Kidruk",
@@ -57,8 +73,14 @@ class SuperUserAuthTestCase(APITestCase):
             "inventory": 1,
             "daily_fee": 12.99
         }
+
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
+
+    def test_list_books_by_superuser(self) -> None:
+        response = self.client.get(BOOKS_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
 
     def test_create_book_by_superuser(self) -> None:
         response = self.client.post(
@@ -69,8 +91,6 @@ class SuperUserAuthTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_book_by_superuser(self) -> None:
-        self.test_create_book_by_superuser()
-        book_id = Book.objects.filter(title="BOT: Atakama Crisis").first().id
         updated_data = {
             "title": "Updated Title",
             "author": "New Author",
@@ -79,12 +99,12 @@ class SuperUserAuthTestCase(APITestCase):
             "daily_fee": 9.99
         }
         response = self.client.patch(
-            BOOKS_URL + str(book_id) + "/",
+            BOOKS_URL + str(self.book1.id) + "/",
             updated_data,
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        updated_book = Book.objects.get(id=book_id)
+        updated_book = Book.objects.get(id=self.book1.id)
         self.assertEqual(updated_book.title, "Updated Title")
         self.assertEqual(updated_book.author, "New Author")
         self.assertEqual(updated_book.cover, "SOFT")
@@ -92,11 +112,8 @@ class SuperUserAuthTestCase(APITestCase):
         self.assertEqual(updated_book.daily_fee, Decimal("9.99"))
 
     def test_delete_book_by_superuser(self):
-        self.test_create_book_by_superuser()
-        book_id = Book.objects.filter(title="BOT: Atakama Crisis").first().id
-
-        response = self.client.delete(BOOKS_URL + str(book_id) + "/",)
+        response = self.client.delete(BOOKS_URL + str(self.book2.id) + "/",)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(Book.DoesNotExist):
-            Book.objects.get(id=book_id)
+            Book.objects.get(id=self.book2.id)
