@@ -1,29 +1,34 @@
-from django.shortcuts import render
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from borrowings.models import Borrowing
-from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer, BorrowingDetailSerializer
+from borrowings.serializers import (
+    BorrowingSerializer,
+    BorrowingListSerializer,
+    BorrowingDetailSerializer,
+    BorrowingCreateSerializer,
+)
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action == "list":
             return BorrowingListSerializer
         if self.action == "retrieve":
             return BorrowingDetailSerializer
+        if self.action == "create":
+            return BorrowingCreateSerializer
 
         return BorrowingSerializer
 
     def get_queryset(self):
         is_active = self.request.query_params.get("is_active")
         user_id = self.request.query_params.get("user_id")
-        queryset = Borrowing.objects.all()
+        queryset = Borrowing.objects.select_related("book")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
