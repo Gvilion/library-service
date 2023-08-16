@@ -9,3 +9,5 @@ exclude =
     venv
     tests
     settings.py
+    telegram_bot.py
+    borrowings_documentation.py
