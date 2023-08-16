@@ -129,9 +129,16 @@ class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
         self.assertFalse(borrowing.is_active)
         borrowing.refresh_from_db()
 
-    def test_get_queryset_authenticated_user_active(self):
-
+    def test_get_queryset_authenticated_user_filtering_by_is_active_status(self):
         response = self.client.get(BORROWINGS_URL, {"is_active": "true"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(response.data),
+            len(Borrowing.objects.filter(actual_return_date__isnull=True))
+        )
+
+    def test_get_queryset_authenticated_user_filtering_by_user_id(self):
+        response = self.client.get(BORROWINGS_URL, {"user_id": self.user.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             len(response.data),
