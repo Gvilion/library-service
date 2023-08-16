@@ -88,10 +88,21 @@ class BorrowingViewSetTestCase(APITestCase):
 
 
 class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
-    def test_list_borrowings_authenticated(self):
+    def setUp(self):
+        super().setUp()
         self.client.force_authenticate(user=self.user)
+
+    def test_list_borrowings_authenticated(self):
         response = self.client.get(BORROWINGS_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_borrowing_authenticated(self):
+        data = {
+            "expected_return_date": date.today() + timedelta(days=14),
+            "book": self.book.id
+        }
+        response = self.client.post(BORROWINGS_URL, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
