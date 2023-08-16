@@ -19,7 +19,6 @@ def count_total_price(borrowing):
         days_borrowing = (borrowing.actual_return_date
                           - borrowing.borrow_date
                           ).days
-
     else:
         days_borrowing = (borrowing.expected_return_date
                           - borrowing.borrow_date
@@ -46,7 +45,7 @@ def count_total_price(borrowing):
 def create_payment(borrowing, session):
     payment = Payment.objects.create(
         status="PENDING",
-        type="PAYMENT",
+        payment_type="PAYMENT",
         borrowing=borrowing,
         session_id=session.id,
         session_url=session.url,
@@ -54,7 +53,7 @@ def create_payment(borrowing, session):
     )
 
     if borrowing.actual_return_date > borrowing.expected_return_date:
-        payment.type = "FINE"
+        payment.payment_type = "FINE"
 
     payment.money_to_pay = round(
         count_total_price(borrowing) / 100, 2

@@ -15,7 +15,7 @@ class Payment(models.Model):
         ("FINE", "Fine")
     )
     status = models.CharField(max_length=63, choices=STATUSES)
-    type = models.CharField(max_length=63, choices=TYPES)
+    payment_type = models.CharField(max_length=63, choices=TYPES)
     borrowing = models.ForeignKey(
         to=Borrowing,
         related_name="payments",
@@ -35,4 +35,4 @@ class Payment(models.Model):
     )
 
     def __str__(self):
-        return f"Payment {self.id} ({self.type}) {self.user.email}"
+        return f"Payment {self.id} ({self.payment_type}) {self.user.email}"
