@@ -1,9 +1,8 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -14,6 +13,9 @@ from borrowings.serializers import (
     BorrowingReturnSerializer,
 )
 from payment.models import Payment
+
+from borrowings.borrowings_documentation import (borrowings_parameters,
+                                                 borrowings_examples)
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -46,11 +48,13 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(user_id=user_id)
 
         if is_active is not None:
-            if is_active in ["false", "False", 0]:
+            if is_active in ["false", "False", "FALSE", 0]:
                 is_active = False
-            else:
+            elif is_active in ["true", "True", "TRUE", 1]:
                 is_active = True
-            queryset = queryset.filter(actual_return_date__isnull=bool(is_active))
+            queryset = queryset.filter(
+                actual_return_date__isnull=bool(is_active)
+            )
         return queryset
 
     @action(
@@ -101,18 +105,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="is_active",
-                type=bool,
-                description="Filter by is_active (e.g. ?is_active=true)",
-            ),
-            OpenApiParameter(
-                name="user_id",
-                type=int,
-                description="Filter by user_id (e.g. ?user_id=1)",
-            ),
-        ]
+        parameters=borrowings_parameters,
+        examples=borrowings_examples
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

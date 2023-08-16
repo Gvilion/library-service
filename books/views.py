@@ -1,4 +1,6 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import (extend_schema,
+                                   OpenApiParameter,
+                                   OpenApiExample)
 from rest_framework import viewsets
 
 from books.models import Book
@@ -30,12 +32,24 @@ class BookViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "title",
                 type=str,
-                description=" Filter by title(ex. ?title='some string')",
+                description=" Filter by title(ex. ?title=book title)",
             ),
             OpenApiParameter(
                 "author",
                 type=str,
-                description=" Filter by genres(ex. ?author='some string')",
+                description=" Filter by genres(ex. ?author=author's name)",
+            ),
+        ],
+        examples=[
+            OpenApiExample(
+                name="Filter by book title",
+                description="Get book with specific title.",
+                value="?title=harry potter",
+            ),
+            OpenApiExample(
+                name="Filter by book author's name",
+                description="Get book with specific author.",
+                value="?author=rowling",
             ),
         ]
     )

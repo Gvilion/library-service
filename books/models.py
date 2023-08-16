@@ -25,9 +25,11 @@ class Book(models.Model):
     def clean(self):
         Book.validate_inventory(self.inventory, ValidationError)
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def save(self,
+             force_insert=False,
+             force_update=False,
+             using=None,
+             update_fields=None):
         self.full_clean()
         return super(Book, self).save(
             force_insert, force_update, using, update_fields
