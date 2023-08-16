@@ -24,7 +24,9 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
 
 class BorrowingListSerializer(serializers.ModelSerializer):
-    book = serializers.SlugRelatedField(many=False, read_only=True, slug_field="title")
+    book = serializers.SlugRelatedField(many=False,
+                                        read_only=True,
+                                        slug_field="title")
 
     class Meta:
         model = Borrowing
@@ -73,10 +75,13 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         expected_return_date = attrs.get("expected_return_date")
 
         if expected_return_date <= datetime.date.today():
-            raise serializers.ValidationError("Expected return date must be later than borrow date.")
+            raise serializers.ValidationError("Expected return date must "
+                                              "be later than borrow date.")
 
         if book.inventory == 0:
-            raise serializers.ValidationError(f"There's no more '{book.title}' books!")
+            raise serializers.ValidationError(
+                f"There's no more '{book.title}' books!"
+            )
 
         return attrs
 
@@ -116,7 +121,9 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
         borrowing = self.instance
 
         if borrowing.actual_return_date:
-            raise serializers.ValidationError("This borrowing has already been returned.")
+            raise serializers.ValidationError(
+                "This borrowing has already been returned."
+            )
 
         return attrs
 

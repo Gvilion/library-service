@@ -1,10 +1,11 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
 from borrowings.models import Borrowing
+from borrowings.permissions import IsAdminOrIfAuthenticatedReadCreateOnly
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
@@ -14,11 +15,14 @@ from borrowings.serializers import (
 )
 from payment.models import Payment
 
+from borrowings.borrowings_documentation import (borrowings_parameters,
+                                                 borrowings_examples)
+
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadCreateOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -45,14 +49,23 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(user_id=user_id)
 
         if is_active is not None:
-            if is_active in ["false", "False", 0]:
+            if is_active in ["false", "False", "FALSE", 0]:
                 is_active = False
-            else:
+            elif is_active in ["true", "True", "TRUE", 1]:
                 is_active = True
-            queryset = queryset.filter(actual_return_date__isnull=bool(is_active))
+            queryset = queryset.filter(
+                actual_return_date__isnull=bool(is_active)
+            )
         return queryset
 
-    @action(methods=["PATCH"], detail=True, url_path="return", permission_classes=[IsAuthenticated, ])
+    @action(
+        methods=["PATCH"],
+        detail=True,
+        url_path="return",
+        permission_classes=[
+            IsAuthenticated,
+        ],
+    )
     def return_borrowing(self, request, pk=None):
         """Endpoint for returning a book"""
         user = self.request.user
@@ -60,14 +73,20 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance=borrowing, data=request.data)
 
         if serializer.is_valid():
-            payment_pending = Payment.objects.filter(user=user, borrowing=borrowing, status="PENDING").first()
+            payment_pending = Payment.objects.filter(
+                user=user, borrowing=borrowing, status="PENDING"
+            ).first()
 
             if payment_pending:
-                raise serializers.ValidationError(f"You have to pay before returning the book. "
-                                                  f"Please pay via this link: {payment_pending.session_url}")
+                raise serializers.ValidationError(
+                    f"You have to pay before returning the book. "
+                    f"Please pay via this link: {payment_pending.session_url}"
+                )
 
             serializer.save()
-            borrowing.actual_return_date = serializer.validated_data.get("actual_return_date")
+            borrowing.actual_return_date = serializer.validated_data.get(
+                "actual_return_date"
+            )
             borrowing.save()
 
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -76,8 +95,19 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
 
-        has_pending_payments = Payment.objects.filter(user=user, status="PENDING").exists()
+        has_pending_payments = Payment.objects.filter(
+            user=user, status="PENDING"
+        ).exists()
         if has_pending_payments:
-            raise serializers.ValidationError("You have pending payments. Please pay them before borrowing.")
+            raise serializers.ValidationError(
+                "You have pending payments. Please pay them before borrowing."
+            )
 
         serializer.save(user=user)
+
+    @extend_schema(
+        parameters=borrowings_parameters,
+        examples=borrowings_examples
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
