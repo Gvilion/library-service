@@ -59,7 +59,7 @@ class SuccessPaymentView(APIView):
             payment.save()
 
             return Response(
-                {"message": "Payment successful"},
+                {"message": "Borrowing returned successfully"},
                 status=status.HTTP_200_OK
             )
         else:
