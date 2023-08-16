@@ -1,10 +1,15 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from rest_framework import status
+from rest_framework.test import APITestCase
+
 from books.models import Book
 from borrowings.models import Borrowing
 from datetime import date, timedelta
 
+
+BORROWINGS_URL = "/api/borrowings/"
 
 class BorrowingModelTestCase(TestCase):
     def setUp(self):
