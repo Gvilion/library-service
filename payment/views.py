@@ -50,9 +50,8 @@ class PaymentViewSet(
 
 class SuccessPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get("pk")
-
-        payment = Payment.objects.filter(user_id=user_id).first()
+        borrowing_id = kwargs.get("pk")
+        payment = Payment.objects.filter(borrowing_id=borrowing_id).first()
 
         if payment:
             payment.status = "PAID"
@@ -71,9 +70,8 @@ class SuccessPaymentView(APIView):
 
 class CancelPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get("pk")
-
-        payment = Payment.objects.filter(user_id=user_id).first()
+        borrowing_id = kwargs.get("pk")
+        payment = Payment.objects.filter(borrowing_id=borrowing_id).first()
 
         if payment:
 
