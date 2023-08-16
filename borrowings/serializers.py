@@ -104,9 +104,11 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
-    message = serializers.CharField(max_length=63,
-                                    default="Borrowing returned successfully.",
-                                    read_only=True)
+    message = serializers.CharField(
+        max_length=63,
+        default="Make a payment first for a successful borrowing return",
+        read_only=True
+    )
     payments = PaymentSerializer(many=True, read_only=True)
 
     class Meta:
