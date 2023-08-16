@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -63,7 +64,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
             if payment_pending:
                 raise serializers.ValidationError(f"You have to pay before returning the book. "
-                                                  f"Payment info: {payment_pending.session_url}")
+                                                  f"Please pay via this link: {payment_pending.session_url}")
 
             serializer.save()
             borrowing.actual_return_date = serializer.validated_data.get("actual_return_date")
