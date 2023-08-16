@@ -137,3 +137,18 @@ class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
         }
         response = self.client.post(BORROWINGS_URL, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_return_borrowing_unauthenticated(self):
+        borrowing = Borrowing.objects.create(
+            expected_return_date=date.today() + timedelta(days=7),
+            book=self.book,
+            user=self.user
+        )
+
+        url_return = BORROWINGS_URL + str(borrowing.id) + "/return/"
+        response = self.client.patch(url_return)
+        borrowing.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIsNone(borrowing.actual_return_date)
+        self.assertTrue(borrowing.is_active)
