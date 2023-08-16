@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing
+from borrowings.permissions import IsAdminOrIfAuthenticatedReadCreateOnly
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
@@ -17,7 +18,7 @@ from payment.models import Payment
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadCreateOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
