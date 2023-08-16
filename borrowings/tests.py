@@ -8,7 +8,7 @@ from books.models import Book
 from borrowings.models import Borrowing
 from datetime import date, timedelta
 
-from borrowings.serializers import BorrowingSerializer
+from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer
 
 BORROWINGS_URL = "/api/borrowings/"
 
@@ -184,9 +184,13 @@ def create_test_data():
         inventory=5,
         daily_fee=12.99
     )
+    user = get_user_model().objects.create_user(
+        email="user@email.com", password="TestPassword123"
+    )
     borrowing = Borrowing.objects.create(
         expected_return_date=date.today() + timedelta(days=7),
-        book=book
+        book=book,
+        user=user
     )
     return book, borrowing
 
@@ -198,3 +202,18 @@ class BorrowingSerializerTestCase(APITestCase):
         }
         with self.assertRaises(serializers.ValidationError):
             BorrowingSerializer(data=data).is_valid(raise_exception=True)
+
+
+class BorrowingListSerializerTestCase(APITestCase):
+    def test_serialize(self):
+        book, borrowing = create_test_data()
+        serializer = BorrowingListSerializer(instance=borrowing)
+        expected_data = {
+            "id": borrowing.id,
+            "book": book.title,
+            "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d"),
+            "expected_return_date": borrowing.expected_return_date.strftime("%Y-%m-%d"),
+            "actual_return_date": None,
+            "is_active": True
+        }
+        self.assertEqual(serializer.data, expected_data)
