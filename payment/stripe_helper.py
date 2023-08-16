@@ -69,13 +69,13 @@ def create_stripe_session(borrowing, request):
     success_url = request.build_absolute_uri(
         reverse(
             "payment:payment-success",
-            args=[borrowing.user.id]
+            args=[borrowing.id]
         )
     )
     cancel_url = request.build_absolute_uri(
         reverse(
             "payment:payment-cancel",
-            args=[borrowing.user.id]
+            args=[borrowing.id]
         )
     )
 
