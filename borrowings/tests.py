@@ -86,11 +86,15 @@ class BorrowingViewSetTestCase(APITestCase):
             user=self.user
         )
 
+
+class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
     def test_list_borrowings_authenticated(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(BORROWINGS_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
     def test_list_borrowings_unauthenticated(self):
         response = self.client.get(BORROWINGS_URL)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
