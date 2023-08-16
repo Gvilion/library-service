@@ -43,7 +43,7 @@ class PaymentModelTest(TestCase):
         )
         self.payment = Payment.objects.create(
             status="PENDING",
-            type="PAYMENT",
+            payment_type="PAYMENT",
             borrowing=self.borrowing,
             session_url="https://checkout.stripe.com/c/pay/cs_test",
             session_id="cs_test",
@@ -54,18 +54,10 @@ class PaymentModelTest(TestCase):
     def test_payment_str(self):
         expected_str = (
             f"Payment {self.payment.id} "
-            f"({self.payment.type}) {self.payment.user.email}"
+            f"({self.payment.payment_type}) {self.payment.user.email}"
         )
 
         self.assertEqual(expected_str, str(self.payment))
-
-    # def test_payment_money_to_pay_if_field_is_empty(self):
-    #     expected_money_to_paid = self.book.daily_fee * BORROWING_DAYS
-    #
-    #     self.assertEqual(
-    #         expected_money_to_paid,
-    #         self.payment.money_to_pay
-    #     )
 
     def test_payment_money_to_pay(self):
         expected_money_to_pay = 10.88
