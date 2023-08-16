@@ -85,10 +85,10 @@ def create_stripe_session(borrowing, request):
         payment_method_types=["card"],
         line_items=[{
             "price_data": {
-                "currency": 'usd',
+                "currency": "usd",
                 "unit_amount": total_price_in_cents,
                 "product_data": {
-                    "name":  borrowing.book.title,
+                    "name": borrowing.book.title,
                     "description": f"User: {borrowing.user.email}",
                 },
             },

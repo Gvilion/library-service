@@ -1,4 +1,6 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import (extend_schema,
+                                   OpenApiParameter,
+                                   OpenApiExample)
 from rest_framework import viewsets
 
 from books.models import Book

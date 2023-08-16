@@ -6,7 +6,8 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/borrowings/", include("borrowings.urls", namespace="borrowings")),
+    path("api/borrowings/", include("borrowings.urls",
+                                    namespace="borrowings")),
     path("api/books/", include("books.urls", namespace="books")),
     path("api/user/", include("user.urls", namespace="user")),
     path("api/payment/", include("payment.urls", namespace="payment")),
