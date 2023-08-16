@@ -71,7 +71,18 @@ class SuccessPaymentView(APIView):
 
 class CancelPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        return Response(
-            {"message": "Payment can be paid a bit later"},
-            status=status.HTTP_200_OK
-        )
+        user_id = kwargs.get("pk")
+
+        payment = Payment.objects.filter(user_id=user_id).first()
+
+        if payment:
+
+            return Response(
+                {"message": "Payment can be paid a bit later"},
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"message": "Payment not found"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
