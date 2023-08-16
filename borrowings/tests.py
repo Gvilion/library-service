@@ -1,13 +1,14 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.test import APITestCase
 
 from books.models import Book
 from borrowings.models import Borrowing
 from datetime import date, timedelta
 
+from borrowings.serializers import BorrowingSerializer
 
 BORROWINGS_URL = "/api/borrowings/"
 
@@ -173,3 +174,27 @@ class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIsNone(borrowing.actual_return_date)
         self.assertTrue(borrowing.is_active)
+
+
+def create_test_data():
+    book = Book.objects.create(
+        title="Test Book",
+        author="Test Author",
+        cover="HARD",
+        inventory=5,
+        daily_fee=12.99
+    )
+    borrowing = Borrowing.objects.create(
+        expected_return_date=date.today() + timedelta(days=7),
+        book=book
+    )
+    return book, borrowing
+
+
+class BorrowingSerializerTestCase(APITestCase):
+    def test_validate(self):
+        data = {
+            "expected_return_date": date.today() - timedelta(days=1)
+        }
+        with self.assertRaises(serializers.ValidationError):
+            BorrowingSerializer(data=data).is_valid(raise_exception=True)
