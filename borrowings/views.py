@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +11,7 @@ from borrowings.serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from payment.models import Payment
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -62,4 +63,10 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user
+
+        has_pending_payments = Payment.objects.filter(user=user, status="PENDING").exists()
+        if has_pending_payments:
+            raise serializers.ValidationError("You have pending payments. Please pay them before borrowing.")
+
+        serializer.save(user=user)
