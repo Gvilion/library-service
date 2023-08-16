@@ -8,7 +8,12 @@ from books.models import Book
 from borrowings.models import Borrowing
 from datetime import date, timedelta
 
-from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer, BorrowingDetailSerializer
+from borrowings.serializers import (
+    BorrowingDetailSerializer,
+    BorrowingListSerializer,
+    BorrowingSerializer
+)
+
 
 BORROWINGS_URL = "/api/borrowings/"
 
@@ -185,7 +190,7 @@ def create_test_data():
         daily_fee=12.99
     )
     user = get_user_model().objects.create_user(
-        email="user@email.com", password="TestPassword123"
+        email="olia_user@email.com", password="TestPassword123"
     )
     borrowing = Borrowing.objects.create(
         expected_return_date=date.today() + timedelta(days=7),
@@ -212,7 +217,9 @@ class BorrowingListSerializerTestCase(APITestCase):
             "id": borrowing.id,
             "book": book.title,
             "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d"),
-            "expected_return_date": borrowing.expected_return_date.strftime("%Y-%m-%d"),
+            "expected_return_date": borrowing.expected_return_date.strftime(
+                "%Y-%m-%d"
+            ),
             "actual_return_date": None,
             "is_active": True
         }
@@ -234,7 +241,9 @@ class BorrowingDetailSerializerTestCase(APITestCase):
                 "daily_fee": str(book.daily_fee)
             },
             "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d"),
-            "expected_return_date": borrowing.expected_return_date.strftime("%Y-%m-%d"),
+            "expected_return_date": borrowing.expected_return_date.strftime(
+                "%Y-%m-%d"
+            ),
             "actual_return_date": None,
             "is_active": True
         }
