@@ -4,6 +4,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from borrowings.models import Borrowing
 from payment.models import Payment
 from payment.permissions import IsAdminOrIfAuthenticatedReadOnly
 from payment.serializers import (
@@ -53,14 +54,15 @@ class PaymentViewSet(
 class SuccessPaymentView(APIView):
     def get(self, request, *args, **kwargs):
         borrowing_id = kwargs.get("pk")
+
+        borrowing = Borrowing.objects.filter(id=borrowing_id).first()
         payment = Payment.objects.filter(borrowing_id=borrowing_id).first()
 
-        if payment:
+        if payment and borrowing:
             payment.status = "PAID"
+            borrowing.actual_return_date = datetime.date.today()
+            borrowing.save()
             payment.save()
-            payment.borrowing.actual_return_date = datetime.date.today()
-            payment.borrowing.save()
-
             return Response(
                 {"message": "Borrowing returned successfully"},
                 status=status.HTTP_200_OK
