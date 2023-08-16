@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -13,6 +13,9 @@ from borrowings.serializers import (
     BorrowingReturnSerializer,
 )
 from payment.models import Payment
+
+from borrowings.borrowings_documentation import (borrowings_parameters,
+                                                 borrowings_examples)
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -49,7 +52,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 is_active = False
             elif is_active in ["true", "True", "TRUE", 1]:
                 is_active = True
-            queryset = queryset.filter(actual_return_date__isnull=bool(is_active))
+            queryset = queryset.filter(
+                actual_return_date__isnull=bool(is_active)
+            )
         return queryset
 
     @action(
@@ -100,30 +105,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="is_active",
-                type=bool,
-                description="Filter by is_active (available inputs: true, True, TRUE, 1 or false, False, FALSE, 0) (e.g. ?is_active=true)",
-            ),
-            OpenApiParameter(
-                name="user_id",
-                type=int,
-                description="Filter by user_id (e.g. ?user_id=1), works only for admins",
-            ),
-        ],
-        examples=[
-            OpenApiExample(
-                name="Filter by active or inactive borrowings",
-                description="Get borrowings that aren or aren't returned.",
-                value="?is_active=true",
-            ),
-            OpenApiExample(
-                name="Filter borrowings by user_id",
-                description="Get borrowings of specific user(works only for admins).",
-                value="?user_id=1",
-            ),
-        ],
+        parameters=borrowings_parameters,
+        examples=borrowings_examples
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
