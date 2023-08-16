@@ -93,6 +93,11 @@ class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
     def setUp(self):
         super().setUp()
         self.client.force_authenticate(user=self.user)
+        Borrowing.objects.create(
+            expected_return_date=date.today() + timedelta(days=3),
+            book=self.book,
+            user=self.user
+        )
 
     def test_list_borrowings_authenticated(self):
         response = self.client.get(BORROWINGS_URL)
@@ -123,6 +128,15 @@ class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
         self.assertIsNotNone(borrowing.actual_return_date)
         self.assertFalse(borrowing.is_active)
         borrowing.refresh_from_db()
+
+    def test_get_queryset_authenticated_user_active(self):
+
+        response = self.client.get(BORROWINGS_URL, {"is_active": "true"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(response.data),
+            len(Borrowing.objects.filter(actual_return_date__isnull=True))
+        )
 
 
 class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
