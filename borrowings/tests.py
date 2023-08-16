@@ -11,6 +11,7 @@ from datetime import date, timedelta
 
 BORROWINGS_URL = "/api/borrowings/"
 
+
 class BorrowingModelTestCase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -63,3 +64,29 @@ class BorrowingModelTestCase(TestCase):
     def test_borrowing_str_representation(self):
         borrowing = Borrowing(**self.borrowing_data)
         self.assertEqual(str(borrowing), str(borrowing.borrow_date))
+
+
+class BorrowingViewSetTestCase(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@email.com", password="TestPassword123"
+        )
+        self.admin_user = get_user_model().objects.create_user(
+            email="admin@libr.com", password="AdminPassword777", is_staff=True
+        )
+        self.book = Book.objects.create(
+            title="Test Book",
+            author="Test Author",
+            cover="HARD", inventory=5,
+            daily_fee=12.99
+        )
+        self.borrowing = Borrowing.objects.create(
+            expected_return_date=date.today() + timedelta(days=7),
+            book=self.book,
+            user=self.user
+        )
+
+    def test_list_borrowings_authenticated(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(BORROWINGS_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
