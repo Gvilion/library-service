@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -54,11 +55,21 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     @action(methods=["PATCH"], detail=True, url_path="return", permission_classes=[IsAuthenticated, ])
     def return_borrowing(self, request, pk=None):
         """Endpoint for returning a book"""
+        user = self.request.user
         borrowing = self.get_object()
         serializer = self.get_serializer(instance=borrowing, data=request.data)
 
         if serializer.is_valid():
+            payment_pending = Payment.objects.filter(user=user, borrowing=borrowing, status="PENDING").first()
+
+            if payment_pending:
+                raise serializers.ValidationError(f"You have to pay before returning the book. "
+                                                  f"Please pay via this link: {payment_pending.session_url}")
+
             serializer.save()
+            borrowing.actual_return_date = serializer.validated_data.get("actual_return_date")
+            borrowing.save()
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
