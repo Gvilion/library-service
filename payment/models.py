@@ -36,9 +36,10 @@ class Payment(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        days_remaining = (self.borrowing.expected_return_date
-                          - timezone.now().date()).days
-        self.money_to_pay = days_remaining * self.borrowing.book.daily_fee
+        if not self.borrowing.actual_return_date:
+            days_remaining = (self.borrowing.expected_return_date
+                              - timezone.now().date()).days
+            self.money_to_pay = days_remaining * self.borrowing.book.daily_fee
         super(Payment, self).save(*args, **kwargs)
 
     def __str__(self):

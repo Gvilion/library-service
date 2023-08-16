@@ -8,14 +8,14 @@ from payment.views import (
 )
 
 router = routers.DefaultRouter()
-router.register("payments", PaymentViewSet)
+router.register("", PaymentViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
     path(
         "<int:pk>/success/",
         SuccessPaymentView.as_view(),
-        name='payment-success'
+        name="payment-success"
     ),
     path(
         "cancel/",
