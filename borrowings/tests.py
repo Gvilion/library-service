@@ -8,7 +8,7 @@ from books.models import Book
 from borrowings.models import Borrowing
 from datetime import date, timedelta
 
-from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer
+from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer, BorrowingDetailSerializer
 
 BORROWINGS_URL = "/api/borrowings/"
 
@@ -211,6 +211,28 @@ class BorrowingListSerializerTestCase(APITestCase):
         expected_data = {
             "id": borrowing.id,
             "book": book.title,
+            "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d"),
+            "expected_return_date": borrowing.expected_return_date.strftime("%Y-%m-%d"),
+            "actual_return_date": None,
+            "is_active": True
+        }
+        self.assertEqual(serializer.data, expected_data)
+
+
+class BorrowingDetailSerializerTestCase(APITestCase):
+    def test_serialize(self):
+        book, borrowing = create_test_data()
+        serializer = BorrowingDetailSerializer(instance=borrowing)
+        expected_data = {
+            "id": borrowing.id,
+            "book": {
+                "id": book.id,
+                "title": book.title,
+                "author": book.author,
+                "cover": book.cover,
+                "inventory": book.inventory,
+                "daily_fee": str(book.daily_fee)
+            },
             "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d"),
             "expected_return_date": borrowing.expected_return_date.strftime("%Y-%m-%d"),
             "actual_return_date": None,
