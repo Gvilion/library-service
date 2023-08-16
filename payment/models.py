@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 from user.models import User
 from borrowings.models import Borrowing
@@ -34,13 +33,6 @@ class Payment(models.Model):
         related_name="payments",
         on_delete=models.CASCADE,
     )
-
-    def save(self, *args, **kwargs):
-        if not self.borrowing.actual_return_date:
-            days_remaining = (self.borrowing.expected_return_date
-                              - timezone.now().date()).days
-            self.money_to_pay = days_remaining * self.borrowing.book.daily_fee
-        super(Payment, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Payment {self.id} ({self.type}) {self.user.email}"
