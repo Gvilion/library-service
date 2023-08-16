@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -56,6 +58,8 @@ class SuccessPaymentView(APIView):
         if payment:
             payment.status = "PAID"
             payment.save()
+            payment.borrowing.actual_return_date = datetime.date.today()
+            payment.borrowing.save()
 
             return Response(
                 {"message": "Borrowing returned successfully"},
