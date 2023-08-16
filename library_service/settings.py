@@ -1,4 +1,5 @@
 import os
+import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -39,6 +40,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "debug_toolbar",
     "drf_spectacular",
+    "django_q",
+    "django_extensions",
 
     "books",
     "borrowings",
@@ -155,4 +158,12 @@ SPECTACULAR_SETTINGS = {
         "persistAuthorization": True,
         "displayOperationId": True,
     }
+}
+
+Q_CLUSTER = {
+    "name": "library",
+    "timeout": 5,
+    "retry": 20,
+    "workers": 4,
+    "orm": "default",
 }
