@@ -1,9 +1,8 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -46,9 +45,9 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(user_id=user_id)
 
         if is_active is not None:
-            if is_active in ["false", "False", 0]:
+            if is_active in ["false", "False", "FALSE", 0]:
                 is_active = False
-            else:
+            elif is_active in ["true", "True", "TRUE", 1]:
                 is_active = True
             queryset = queryset.filter(actual_return_date__isnull=bool(is_active))
         return queryset
@@ -105,14 +104,26 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 name="is_active",
                 type=bool,
-                description="Filter by is_active (e.g. ?is_active=true)",
+                description="Filter by is_active (available inputs: true, True, TRUE, 1 or false, False, FALSE, 0) (e.g. ?is_active=true)",
             ),
             OpenApiParameter(
                 name="user_id",
                 type=int,
-                description="Filter by user_id (e.g. ?user_id=1)",
+                description="Filter by user_id (e.g. ?user_id=1), works only for admins",
             ),
-        ]
+        ],
+        examples=[
+            OpenApiExample(
+                name="Filter by active or inactive borrowings",
+                description="Get borrowings that aren or aren't returned.",
+                value="?is_active=true",
+            ),
+            OpenApiExample(
+                name="Filter borrowings by user_id",
+                description="Get borrowings of specific user(works only for admins).",
+                value="?user_id=1",
+            ),
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
