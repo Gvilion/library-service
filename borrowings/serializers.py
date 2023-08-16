@@ -1,6 +1,5 @@
 import datetime
 
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from borrowings.models import Borrowing
@@ -10,13 +9,6 @@ from payment.stripe_helper import create_stripe_session
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
-    def validate(self, attrs):
-        data = super(BorrowingSerializer, self).validate(attrs=attrs)
-        Borrowing.validate_date(
-            attrs["expected_return_date"],
-            ValidationError,
-        )
-        return data
 
     class Meta:
         model = Borrowing
@@ -29,11 +21,6 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "is_active",
         )
         read_only_fields = ("id", "is_active", "borrow_date")
-
-    def create(self, validated_data):
-        borrowing = Borrowing.objects.create(**validated_data)
-
-        return borrowing
 
 
 class BorrowingListSerializer(serializers.ModelSerializer):
@@ -85,13 +72,12 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         book = attrs.get("book")
         expected_return_date = attrs.get("expected_return_date")
 
+        if expected_return_date <= datetime.date.today():
+            raise serializers.ValidationError("Expected return date must be later than borrow date.")
+
         if book.inventory == 0:
             raise serializers.ValidationError(f"There's no more '{book.title}' books!")
 
-        Borrowing.validate_date(
-            expected_return_date,
-            ValidationError,
-        )
         return attrs
 
     def create(self, validated_data):
