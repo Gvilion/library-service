@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import Mock
 
+from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -25,7 +26,7 @@ class StripeHelperTest(TestCase):
             author="Test Author",
             cover="HARD",
             inventory=10,
-            daily_fee=12.99
+            daily_fee=Decimal("12.99")
         )
 
         self.borrowing = Borrowing.objects.create(
@@ -38,6 +39,8 @@ class StripeHelperTest(TestCase):
 
     def test_count_total_price_payment(self):
         borrowing_days = 2
+
+        self.borrowing.borrow_date = CURRENT_DAY
         self.borrowing.actual_return_date = CURRENT_DAY + timedelta(
             days=borrowing_days
         )
@@ -57,6 +60,7 @@ class StripeHelperTest(TestCase):
     def test_count_total_price_payment_fine(self):
         borrowing_days_total = 6
 
+        self.borrowing.borrow_date = CURRENT_DAY
         self.borrowing.actual_return_date = CURRENT_DAY + timedelta(
             days=borrowing_days_total
         )
@@ -70,6 +74,8 @@ class StripeHelperTest(TestCase):
 
     def test_create_payment_without_fine(self):
         borrowing_days = 2
+
+        self.borrowing.borrow_date = CURRENT_DAY
         self.borrowing.actual_return_date = CURRENT_DAY + timedelta(
             days=borrowing_days
         )
@@ -82,10 +88,12 @@ class StripeHelperTest(TestCase):
 
         payment = create_payment(self.borrowing, session)
 
-        self.assertEqual(payment.type, "PAYMENT")
+        self.assertEqual(payment.payment_type, "PAYMENT")
 
     def test_create_payment_with_fine(self):
         borrowing_days = 6
+
+        self.borrowing.borrow_date = CURRENT_DAY
         self.borrowing.actual_return_date = CURRENT_DAY + timedelta(
             days=borrowing_days
         )
@@ -98,4 +106,4 @@ class StripeHelperTest(TestCase):
 
         payment = create_payment(self.borrowing, session)
 
-        self.assertEqual(payment.type, "FINE")
+        self.assertEqual(payment.payment_type, "FINE")
