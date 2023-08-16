@@ -4,7 +4,7 @@ from rest_framework import routers
 from payment.views import (
     PaymentViewSet,
     SuccessPaymentView,
-    CancelPaymentView
+    CancelPaymentView,
 )
 
 router = routers.DefaultRouter()
@@ -18,10 +18,10 @@ urlpatterns = [
         name="payment-success"
     ),
     path(
-        "cancel/",
+        "<int:pk>/cancel/",
         CancelPaymentView.as_view(),
         name="payment-cancel"
-    )
+    ),
 ]
 
 app_name = "payment"
