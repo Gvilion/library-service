@@ -50,7 +50,7 @@ class PaymentViewSet(
 
 class SuccessPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get('pk')
+        user_id = kwargs.get("pk")
 
         payment = Payment.objects.filter(user_id=user_id).first()
 
