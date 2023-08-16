@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
@@ -26,7 +27,7 @@ class PaymentModelTest(TestCase):
             author="Test Author",
             cover="HARD",
             inventory=10,
-            daily_fee=12.99
+            daily_fee=Decimal("12.99")
         )
 
         self.borrowing = Borrowing.objects.create(
@@ -66,7 +67,7 @@ class PaymentModelTest(TestCase):
     #         self.payment.money_to_pay
     #     )
 
-    def test_payment_money_to_pay_if_field_is_not_empty(self):
+    def test_payment_money_to_pay(self):
         expected_money_to_pay = 10.88
 
         self.borrowing.actual_return_date = CURRENT_DAY + timedelta(days=2)
