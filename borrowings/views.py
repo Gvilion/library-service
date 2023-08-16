@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -81,3 +82,20 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("You have pending payments. Please pay them before borrowing.")
 
         serializer.save(user=user)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="is_active",
+                type=bool,
+                description="Filter by is_active (e.g. ?is_active=true)",
+            ),
+            OpenApiParameter(
+                name="user_id",
+                type=int,
+                description="Filter by user_id (e.g. ?user_id=1)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
