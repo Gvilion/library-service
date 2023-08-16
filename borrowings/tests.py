@@ -69,10 +69,12 @@ class BorrowingModelTestCase(TestCase):
 class BorrowingViewSetTestCase(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            email="user@email.com", password="TestPassword123"
+            email="olia_user@email.com", password="TestPassword123"
         )
         self.admin_user = get_user_model().objects.create_user(
-            email="admin@libr.com", password="AdminPassword777", is_staff=True
+            email="olia_admin@libr.com",
+            password="AdminPassword777",
+            is_staff=True
         )
         self.book = Book.objects.create(
             title="Test Book",
@@ -103,6 +105,24 @@ class AuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
         }
         response = self.client.post(BORROWINGS_URL, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_return_borrowing_authenticated(self):
+        borrowing = Borrowing.objects.create(
+            expected_return_date=date.today() + timedelta(days=7),
+            book=self.book,
+            user=self.user
+        )
+        self.assertIsNone(borrowing.actual_return_date)
+        self.assertTrue(borrowing.is_active)
+
+        url_return = BORROWINGS_URL + str(borrowing.id) + "/return/"
+        response = self.client.patch(url_return)
+        borrowing.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(borrowing.actual_return_date)
+        self.assertFalse(borrowing.is_active)
+        borrowing.refresh_from_db()
 
 
 class NotAuthenticatedUserBorrowingViewSetTestCase(BorrowingViewSetTestCase):
