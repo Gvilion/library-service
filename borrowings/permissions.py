@@ -5,7 +5,7 @@ class IsAdminOrIfAuthenticatedReadCreateOnly(BasePermission):
     def has_permission(self, request, view):
         return bool(
             (
-                request.method in ("GET", "CREATE", "HEAD", "OPTIONS")
+                request.method in ("GET", "POST", "HEAD", "OPTIONS")
                 and request.user
                 and request.user.is_authenticated
             )
