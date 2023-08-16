@@ -73,7 +73,10 @@ def create_stripe_session(borrowing, request):
         )
     )
     cancel_url = request.build_absolute_uri(
-        reverse("payment:payment-cancel")
+        reverse(
+            "payment:payment-cancel",
+            args=[borrowing.user.id]
+        )
     )
 
     total_price_in_cents = count_total_price(borrowing)
@@ -93,7 +96,7 @@ def create_stripe_session(borrowing, request):
         }],
         mode="payment",
         success_url=success_url,
-        cancel_url=cancel_url
+        cancel_url=cancel_url,
     )
 
     payment = create_payment(borrowing, session)
