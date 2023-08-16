@@ -20,24 +20,6 @@ class Borrowing(models.Model):
     def is_active(self):
         return self.actual_return_date is None
 
-    @staticmethod
-    def validate_date(expected_return_date, error_to_raise):
-        if expected_return_date < datetime.date.today():
-            raise error_to_raise(
-                "Expected return date cannot be earlier than borrow date."
-            )
-
-    def clean(self):
-        Borrowing.validate_date(self.expected_return_date, ValidationError)
-
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
-        self.full_clean()
-        return super(Borrowing, self).save(
-            force_insert, force_update, using, update_fields
-        )
-
     class Meta:
         ordering = ["expected_return_date"]
 
